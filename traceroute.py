@@ -13,11 +13,12 @@ def traceroute(host:str):
         resp = sr1(packet, timeout = 10,verbose=0)
         if resp is not None:
             response_ip = resp.getlayer(IP).src
-            print('Hop {}: {}'.format(i,response_ip))
-
+           
             if (response_ip == socket.gethostbyname(host)):
-                print('The host is: {}'.format(response_ip))
+                print('The host\'s IP is {}'.format(response_ip))
                 return
+            else:
+                print('Hop {}: {}'.format(i,response_ip))
         else:
             pass
         
