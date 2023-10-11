@@ -8,15 +8,14 @@ def traceroute(host:str):
     '''
     i:int = 1
     
-    while(i < 100): 
+    while(i < 64): 
         packet = IP(dst= host, ttl = i)/ICMP(type=8, code=0)
         resp = sr1(packet, timeout = 10,verbose=0)
         if resp is not None:
             response_ip = resp.getlayer(IP).src
-            print(response_ip)
+            print('Hop {}: {}'.format(i,response_ip))
 
-            if (socket.gethostbyaddr(response_ip.psrc)[0] == host):
-               
+            if (response_ip == socket.gethostbyname(host)):
                 print('The host is: {}'.format(response_ip))
                 return
         else:
