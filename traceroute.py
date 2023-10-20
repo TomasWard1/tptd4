@@ -17,7 +17,7 @@ def traceroute(host: str):
             rtt = (end_time - start_time) * 1000  # Calculamos el RTT en milisegundos
 
             if response_ip == socket.gethostbyname(host):
-                print('The host\'s IP is {} (RTT: {:.2f} ms)'.format(response_ip, rtt))
+                print('IP del host remoto: {} (RTT: {:.2f} ms)'.format(response_ip, rtt))
                 return
             else:
                 print('Hop {}: {} (RTT: {:.2f} ms)'.format(i, response_ip, rtt))
@@ -29,10 +29,6 @@ def traceroute(host: str):
     print('traceroute finished')
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python traceroute.py <destination_host>")
-        sys.exit(1)
-
     host = sys.argv[1]
     traceroute(host)
 
