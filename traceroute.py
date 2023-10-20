@@ -1,37 +1,40 @@
-from scapy.layers.inet import IP,ICMP,sr1
+from scapy.layers.inet import IP, ICMP, sr1
 import sys
 import socket
+import time
 
-def traceroute(host:str):
-    '''
-    Recibe: IP del host destino
-    '''
-    i:int = 1
-    destination_ip = socket.gethostbyname(host)
-    
-    while(i < 64): 
-        packet = IP(dst= host, ttl = i)/ICMP(type=8, code=0)
-        resp = sr1(packet, timeout = 2,verbose=0)
+def traceroute(host: str):
+    i = 1
+
+    while i < 64:
+        packet = IP(dst = host, ttl = i) / ICMP(type = 8, code = 0)
+        start_time = time.time()
+        resp = sr1(packet, timeout = 2, verbose=0)
+        end_time = time.time()
+
         if resp is not None:
             response_ip = resp.getlayer(IP).src
-           
-            if (response_ip == destination_ip):
-                print('The host\'s IP is {}'.format(response_ip))
+            rtt = (end_time - start_time) * 1000  # Calculamos el RTT en milisegundos
+
+            if response_ip == socket.gethostbyname(host):
+                print('The host\'s IP is {} (RTT: {:.2f} ms)'.format(response_ip, rtt))
                 return
             else:
-                print('Hop {}: {}'.format(i,response_ip))
+                print('Hop {}: {} (RTT: {:.2f} ms)'.format(i, response_ip, rtt))
         else:
             pass
-        i+=1
-    print(i)
+
+        i += 1
+
     print('traceroute finished')
 
 def main():
-  # Obtenemos el host destino del argumento de la línea de comandos.
-  host = sys.argv[1]
+    if len(sys.argv) != 2:
+        print("Usage: python traceroute.py <destination_host>")
+        sys.exit(1)
 
-  # Ejecutamos el traceroute.
-  traceroute(host)
+    host = sys.argv[1]
+    traceroute(host)
 
 if __name__ == "__main__":
-  main()
+    main()
