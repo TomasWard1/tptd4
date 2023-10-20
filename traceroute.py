@@ -9,7 +9,7 @@ def traceroute(host: str):
     while i < 64:
         packet = IP(dst = host, ttl = i) / ICMP(type = 8, code = 0)
         start_time = time.time()
-        resp = sr1(packet, timeout = 2, verbose=0)
+        resp = sr1(packet, timeout = 1, verbose=0)
         end_time = time.time()
 
         if resp is not None:
