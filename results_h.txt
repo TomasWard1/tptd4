@@ -1,5 +1,8 @@
 Open Ports:
+25
 80
+110
+143
 443
 
 Filtered Ports:
@@ -27,7 +30,6 @@ Filtered Ports:
 22
 23
 24
-25
 26
 27
 28
@@ -111,7 +113,6 @@ Filtered Ports:
 107
 108
 109
-110
 111
 112
 114
@@ -143,7 +144,6 @@ Filtered Ports:
 140
 141
 142
-143
 144
 145
 146
