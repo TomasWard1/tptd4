@@ -40,14 +40,14 @@ def traceroute(host:str):
                     time_sent = time.time()
 
         else:
-            print("NADA")
+            print('Hop {}: NONE'.format(i))
             pass
         
         i+=1
     
     print('traceroute finished')
     if i > 1:
-        porcentajeTTLzero = (TTL_expirados / (i - 1)) * 100  # Calculo el porcentaje
+        porcentajeTTLzero = (TTL_expirados / i) * 100  # Calculo el porcentaje
         print('Porcentaje de hosts intermedios con TTL expired durante el tránsito: ' + str(porcentajeTTLzero))
       
       
@@ -64,6 +64,10 @@ def main():
 
 if __name__ == "__main__":
   main()
+
+
+
+
 
 
 
