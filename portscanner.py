@@ -1,7 +1,8 @@
 from scapy.layers.inet import IP, ICMP, sr1, TCP
 import sys
 
-def port_scanner(ip_address,mode):
+
+def port_scanner(ip_address, mode):
     open_ports = []
     filtered_ports = []
     total_ports = 1000
@@ -14,26 +15,28 @@ def port_scanner(ip_address,mode):
 
             if resp is not None and resp.haslayer(TCP) and resp['TCP'].flags == 'SA':
                 if (mode == '-h'):
-                    #Criterio 2.1: Puerto esta abierto
+                    # Criterio 2.1: Puerto esta abierto
                     open_ports.append(dest_port)
 
                 elif (mode == '-f'):
-                    #Criterio 2.2: Hay que establecer conexion TCP para confirmar estado abierto
-                    #Mandamos un paquete con ACK + Payload
-                    packet_with_payload = IP(dst=ip_address) / TCP(flags="A", ack=resp.getlayer(TCP).seq + 1, dport=dest_port) / "Payload"
-                    resp_with_payload = sr1(packet_with_payload, timeout=1, verbose=0)
+                    # Criterio 2.2: Hay que establecer conexion TCP para confirmar estado abierto
+                    # Mandamos un paquete con ACK + Payload
+                    packet_with_payload = IP(
+                        dst=ip_address) / TCP(flags="A", ack=resp.getlayer(TCP).seq + 1, dport=dest_port) / "Payload"
+                    resp_with_payload = sr1(
+                        packet_with_payload, timeout=1, verbose=0)
                     print(resp_with_payload)
                     if resp_with_payload is not None and resp_with_payload.haslayer(TCP) and resp_with_payload.getlayer(TCP).flags == 'A':
-                         print('Analyzing port {}, status OPEN'.format(dest_port))
-                         open_ports.append(dest_port)
-                    
+                        print('Analyzing port {}, status OPEN'.format(dest_port))
+                        open_ports.append(dest_port)
+
                     elif resp_with_payload is None:
                         # No se recibio respuesta, esta filtrado
                         print('Analyzing port {}, status FILTERED'.format(dest_port))
                         filtered_ports.append(dest_port)
                     else:
                         print('Analyzing port {}, status OTHER'.format(dest_port))
-            
+
             elif resp is None:
                 # No se recibio respuesta, esta filtrado
                 print('Analyzing port {}, status FILTERED'.format(dest_port))
@@ -41,10 +44,10 @@ def port_scanner(ip_address,mode):
             else:
                 print('Analyzing port {}, status OTHER'.format(dest_port))
         except ConnectionRefusedError as e:
-            #Puerto cerrado
+            # Puerto cerrado
             print(f"Connection refused: {e}")
 
-    #Procesamos al txt
+    # Procesamos al txt
     with open(output_file, "w") as f:
         f.write("Open Ports:\n")
         for port in open_ports:
@@ -69,4 +72,4 @@ if __name__ == "__main__":
     target_ip = sys.argv[1]
     mode_char = sys.argv[2]
 
-    port_scanner(target_ip,mode_char)
+    port_scanner(target_ip, mode_char)
