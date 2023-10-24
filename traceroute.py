@@ -1,4 +1,4 @@
-from scapy.layers.inet import IP, ICMP, sr1, sr
+from scapy.layers.inet import IP, ICMP, sr1
 import sys
 import socket
 import time
@@ -45,15 +45,9 @@ def traceroute(host: str):
     print('Porcentaje de hosts intermedios con TTL expirado: {:.2f}'.format(porcentajeTTLzero))
 
 
-def main():
+if __name__ == "__main__":
     # Obtenemos el host destino del argumento de la línea de comandos.
     host = sys.argv[1]
 
     # Ejecutamos el traceroute.
     traceroute(host)
-
-    main()
-
-
-if __name__ == "__main__":
-    main()
