@@ -7,7 +7,9 @@ def traceroute(host: str):
     i = 1
 
     while i < 64:
+        #Construimos un paquete IP con un TTL que incrementa
         packet = IP(dst = host, ttl = i) / ICMP(type = 8, code = 0)
+       
         start_time = time.time()
         resp = sr1(packet, timeout = 1, verbose=0)
         end_time = time.time()
@@ -16,17 +18,15 @@ def traceroute(host: str):
             response_ip = resp.getlayer(IP).src
             rtt = (end_time - start_time) * 1000  # Calculamos el RTT en milisegundos
 
+            #Comparacion de IPs
             if response_ip == socket.gethostbyname(host):
                 print('IP del host remoto: {} (RTT: {:.2f} ms)'.format(response_ip, rtt))
                 return
             else:
                 print('Hop {}: {} (RTT: {:.2f} ms)'.format(i, response_ip, rtt))
         else:
-            pass
-
+            print('No response {}'.format(resp))
         i += 1
-
-    print('traceroute finished')
 
 def main():
     host = sys.argv[1]
