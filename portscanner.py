@@ -11,7 +11,7 @@ def port_scanner(ip_address, mode):
     for dest_port in range(1, total_ports + 1):
         try:
             packet = IP(dst=ip_address) / TCP(flags="S", dport=dest_port)
-            resp = sr1(packet, timeout=0.25, verbose=0)
+            resp = sr1(packet, timeout=0.5, verbose=0)
 
             if resp is not None and resp.haslayer(TCP) and resp['TCP'].flags == 'SA':
                 if (mode == '-h'):
