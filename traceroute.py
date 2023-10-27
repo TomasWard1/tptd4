@@ -1,8 +1,8 @@
 from scapy.layers.inet import IP, ICMP, sr1
 import sys
-import socket
 import time
-
+import requests
+import folium
 
 def traceroute(host: str):
     ttl = 1
@@ -14,7 +14,7 @@ def traceroute(host: str):
         packet = IP(dst=host, ttl=ttl) / ICMP(type=8, code=0)
 
         start_time = time.time()
-        resp = sr1(packet, timeout=1, verbose=0) #CAMBIAR A 2
+        resp = sr1(packet, timeout=2, verbose=0)
         end_time = time.time()
 
         if resp is not None:
@@ -29,8 +29,7 @@ def traceroute(host: str):
                     response_ip, rtt))
                 break
             else:
-                # Verificar si el mensaje ICMP es: "TTL expired during transit"
-                # type = 11 -> el mensaje ICMP es de tipo 11 -> TTL expired during transit,  se verifica que el codigo del mensaje sea 0, -> el tiempo de vida del TTL se agotó en un router
+                # ICMP type 11 = TTL expired during transit
                 if resp.getlayer(ICMP).type == 11 and resp.getlayer(ICMP).code == 0:
                     ttl_expirados += 1
                     print(
@@ -49,10 +48,93 @@ def traceroute(host: str):
 
     
 
+websites = {
+    "Africa": [
+        "www.unisa.ac.za",
+        "www.wits.ac.za",
+        "www.ug.edu.gh",
+        "www.unilorin.edu.ng",
+        "www.uonbi.ac.ke",
+
+    ],
+    "North America": [
+        "www.carleton.edu",
+        "www.pomona.edu",
+        "www.middlebury.edu",
+        "www.macalester.edu",
+        "www.grinnell.edu"
+    ],
+    "Europe": [
+        "www.aalto.fi",
+        "www.ceu.edu",
+        "www.epfl.ch",
+        "www.tu-dresden.de",
+        "www.uib.no"
+    ],
+    "Asia": [
+        "www.iiit.ac.in",
+        "www.ku.edu.np",
+        "www.ajou.ac.kr",
+        "www.hku.hk",
+        "www.ait.ac.th"
+    ],
+
+    "Oceania": [
+        "www.swinburne.edu.au",
+        "www.uwa.edu.au",
+        "www.qut.edu.au",
+        "www.aut.ac.nz",
+        "www.curtin.edu.au"
+    ]
+}
+
+
+colors = ['blue', 'green', 'red', 'pink', 'purple']
+
+
+def map_request():
+
+    # Creamos un mapa folium
+    traceroute_map = folium.Map(location=[0, 0], zoom_start=2)
+
+    for index, entry in enumerate(websites.items()):
+        website_list = entry[1]
+        color = colors[index]
+
+        for i in range(0, len(website_list)):
+            website = website_list[i]
+            print(website)
+
+            hops = traceroute(website)
+
+            locations = []
+
+            for hop in hops:
+                # Hacemos llamadas a una API externa para obtener la ubicacion a partir de la direccion IP
+                response = requests.get(f"http://ip-api.com/json/{hop}")
+                data = response.json()
+                lat = data.get("lat", "Unknown")
+                lon = data.get("lon", "Unknown")
+
+                if lat != "Unknown" and lon != "Unknown":
+
+                    locations.append([lat, lon])
+                    folium.Marker(
+                        location=[lat, lon],
+                        icon=folium.Icon(color=color),
+                        popup=folium.Popup(f"{website}", max_width=300),
+                    ).add_to(traceroute_map)
+
+            folium.PolyLine(locations, color=color).add_to(traceroute_map)
+
+    traceroute_map.save("traceroute_map.html")
+
 
 if __name__ == "__main__":
-    # Obtenemos el host destino del argumento de la línea de comandos.
-    host = sys.argv[1]
-
-    # Ejecutamos el traceroute.
-    traceroute(host)
+    # Obtenemos el argumento de la línea de comandos.
+    arg = sys.argv[1]
+    
+    if (arg == '-map'):
+        map_request()
+    else:
+        traceroute(arg)
